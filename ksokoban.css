@@ -1,0 +1,114 @@
+body {
+    background-color: #111;
+    font-family: Arial sans-serif;
+}
+
+/* choose level set */
+.level-sets {
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+    width: 300px;
+}
+
+.level-sets .set {
+    text-align: center;
+}
+
+.level-sets .set a {
+    display: inline-block;
+    width: 100%;
+    color: #ddd;
+    text-decoration: none;
+    padding: 10px 0;
+}
+
+.level-sets .set a:hover {
+    color: white;
+    background-color: #222;
+}
+
+/* choose level */
+h2 {
+    color: white;
+    text-align: center;
+}
+
+.levels {
+    list-style: none;
+    margin: 0 auto;
+    padding: 0;
+    width: 600px;
+}
+
+.levels .level {
+    text-align: center;
+    float: left;
+    width: 60px;
+}
+
+.levels .level a {
+    display: inline-block;
+    padding: 20px 20px;
+    color: #ddd;
+    text-decoration: none;
+}
+
+.levels .level a:hover {
+    color: white;
+    background-color: #222;
+}
+
+/* cave */
+.game-data {
+    height: 30px;
+    margin: 10px 0;
+}
+.cave {
+    margin: 0 auto;
+    position: relative;
+}
+
+.cave .item {
+    position: absolute;
+    background: scroll transparent 0 0 no-repeat;
+    background-size: 100%;
+}
+
+.cave .item.gem {
+    background-image: url(images/object.png);
+    z-index: 2;
+}
+
+.cave .item.player {
+    background-image: url(images/man.png);
+    z-index: 2;
+}
+
+.cave .item.goal {
+    background-image: url(images/goal.png);
+    z-index: 1;
+}
+
+.cave .item.floor {
+    background-color: #555;
+    z-index: 0;
+}
+
+.cave .item.wall .stone {
+    position: absolute;
+    background: scroll transparent 0 0 no-repeat;
+    background-size: 100%;
+}
+
+.cave .item.wall .stone.stone1 { background-image: url(images/stone_1.png); }
+.cave .item.wall .stone.stone2 { background-image: url(images/stone_2.png); }
+.cave .item.wall .stone.stone3 { background-image: url(images/stone_3.png); }
+.cave .item.wall .stone.stone4 { background-image: url(images/stone_4.png); }
+.cave .item.wall .stone.stone5 { background-image: url(images/stone_5.png); }
+.cave .item.wall .stone.stone6 { background-image: url(images/stone_6.png); }
+
+.cave .item.wall .stone.halfstone1 { background-image: url(images/halfstone_1.png); }
+.cave .item.wall .stone.halfstone2 { background-image: url(images/halfstone_2.png); }
+.cave .item.wall .stone.halfstone3 { background-image: url(images/halfstone_3.png); }
+.cave .item.wall .stone.halfstone4 { background-image: url(images/halfstone_4.png); }

@@ -19,6 +19,9 @@ YUI.add('ksokoban-view-cave', function (Y) {
 
 			Y.on("windowresize", function () { _this._calcScale(); });
 
+			Y.one('doc').on('keypress', this._onKey, this);
+			cave.after('steps', this._onSteps, this);
+
 			return this;
 		},
 
@@ -116,7 +119,62 @@ YUI.add('ksokoban-view-cave', function (Y) {
 			Y.Array.each(this.get('walls'), function (wall) {
 				wall.set('cellSize', cell_size);
 			});
+		},
+
+		_onKey: function (event) {
+			var cave = this.get('model'),
+				direction;
+
+			switch (event.keyCode) {
+				case 37: direction = 'left'; break;
+				case 38: direction = 'up'; break;
+				case 39: direction = 'right'; break;
+				case 40: direction = 'down'; break;
+			}
+
+			if (direction != null) {
+				if (event.shiftKey) {
+					cave.goStraightAndPush(direction);
+				}
+				else if (event.ctrlKey) {
+					cave.goStraight(direction);
+				}
+				else {
+					cave.step(direction);
+				}
+				event.halt();
+			}
+		},
+
+		_onSteps: function (event) {
+			this._animateSteps(event.steps);
+		},
+
+		_animateSteps: function (steps) {
+			var step = steps.shift(),
+				player = this.get('player'),
+				cell_size = this.get('cellSize');
+
+			player.x = step.player.x;
+			player.y = step.player.y;
+			player.node.setStyles({
+				left: player.x * cell_size,
+				top:  player.y * cell_size
+			});
+			if (step.gem != null) {
+				var gem = this.get('gems')[step.gem.no];
+				gem.x = step.gem.x;
+				gem.y = step.gem.y;
+				gem.node.setStyles({
+					left: gem.x * cell_size,
+					top:  gem.y * cell_size
+				});
+			}
+			if (steps.length > 0) {
+				Y.later(50, this, this._animateSteps, [steps]);
+			}
 		}
+
 	}, {
 		ATTRS: {
 			cellSize: { value: null },

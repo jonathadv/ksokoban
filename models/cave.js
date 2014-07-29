@@ -12,8 +12,11 @@ YUI.add('ksokoban-model-cave', function (Y) {
 			this.set('height', level_data.length);
 
 			this._initMap(level_data, width);
+			this._resetReachable();
 
-			this.publish('steps', {emitFacade: true});
+			this.publish('steps', { emitFacade: true });
+
+			this.on('steps', this._resetReachable, this);
 
 		},
 
@@ -58,6 +61,43 @@ YUI.add('ksokoban-model-cave', function (Y) {
 			this.set('map', map);
 			this.set('gems', gems);
 			this.set('player', player);
+		},
+
+		_resetReachable: function () {
+			var map = this.get('map'),
+				player = this.get('player'),
+				reachable = [], new_reachable;
+
+			Y.Array.each(map, function (row) {
+				Y.Array.each(row, function (cell) {
+					delete cell.reachable;
+					delete cell.from;
+				});
+			});
+
+			map[player.y][player.x].reachable = true;
+			reachable.push(player);
+
+			do {
+				new_reachable = [];
+
+				Y.Array.each(reachable, function (r) {
+					var x = r.x, y = r.y,
+						base_cell = map[y][x],
+						steps = [{ x: x + 1, y: y }, { x: x - 1, y: y }, { x: x, y: y + 1 }, { x: x, y: y - 1 }];
+
+					Y.Array.each(steps, function (step) {
+						var cell = map[step.y][step.x];
+						if (!(cell.wall || cell.gem || cell.reachable)) {
+							cell.reachable = true;
+							cell.from = { x: x, y: y };
+							new_reachable.push(step);
+						}
+					});
+				});
+
+				reachable = new_reachable;
+			} while (new_reachable.length > 0)
 		},
 
 		_step: function (direction, steps, allow_push) {
@@ -151,6 +191,40 @@ YUI.add('ksokoban-model-cave', function (Y) {
 			if (steps.length > 0) {
 				this.fire('steps', { steps: steps });
 			}
+		},
+
+		go: function (x, y) {
+			var map = this.get('map'),
+				steps = [{ player: { x: x, y: y }}],
+				cell = map[y][x];
+
+			if (!cell.reachable || cell.from == null) { return false; }
+
+			do {
+				steps.unshift({ player: cell.from });
+				cell = map[cell.from.y][cell.from.x];
+			} while (cell.from != null);
+
+			this.set('player', { x: x, y: y });
+			this.fire('steps', { steps: steps });
+		},
+
+		goStraightAndPushUntil: function (x, y) {
+			var player = this.get('player'),
+				direction, steps = [], step_count = 0;
+
+			if (player.x != x && player.y != y) { return false; }
+
+			if (x < player.x)      { step_count = player.x - x; direction = 'left'; }
+			else if (x > player.x) { step_count = x - player.x; direction = 'right'; }
+			else if (y < player.y) { step_count = player.y - y; direction = 'up'; }
+			else if (y > player.y) { step_count = y - player.y; direction = 'down'; }
+
+			if (direction == null) { return false; }
+
+			while (this._step(direction, steps, true) && -- step_count > 0);
+
+			this.fire('steps', { steps: steps });
 		}
 
 	}, {

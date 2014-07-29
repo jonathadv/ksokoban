@@ -2,9 +2,21 @@ YUI.add('ksokoban-view-cave', function (Y) {
 	'use strict';
 
 	Y.namespace('KSokoban').CaveView = Y.Base.create('caveView', Y.View, [], {
+
+		events: {
+			'.cave': {
+				mouseup: '_onClick',
+				contextmenu: function (event) { event.preventDefault(); }
+			}
+		},
+
+		initializer: function () {
+			var cave = this.get('model');
+			cave.after('steps', this._onSteps, this);
+		},
+
 		render: function () {
-			var _this = this,
-				cave = this.get('model'),
+			var cave = this.get('model'),
 				map = cave.get('map'),
 				container = this.get('container');
 
@@ -17,10 +29,9 @@ YUI.add('ksokoban-view-cave', function (Y) {
 
 			this._calcScale();
 
-			Y.on("windowresize", function () { _this._calcScale(); });
+			Y.on('windowresize', Y.bind(this._calcScale, this));
 
 			Y.one('doc').on('keypress', this._onKey, this);
-			cave.after('steps', this._onSteps, this);
 
 			return this;
 		},
@@ -103,7 +114,7 @@ YUI.add('ksokoban-view-cave', function (Y) {
 				cell_size = Math.min(cell_width, cell_height, 96);
 			this.set('cellSize', cell_size);
 
-			container.one('.cave').setStyles({
+			this.get('caveNode').setStyles({
 				width: width * cell_size,
 				height: height * cell_size
 			});
@@ -146,6 +157,25 @@ YUI.add('ksokoban-view-cave', function (Y) {
 			}
 		},
 
+		_onClick: function (event) {
+			event.preventDefault();
+
+			var cave = this.get('model'),
+				cell_size = this.get('cellSize'),
+				region = this.get('caveNode').get('region'),
+				x = Math.floor((event.clientX - region.left) / cell_size),
+				y = Math.floor((event.clientY - region.top) / cell_size);
+
+			if (event.button == 1) {
+				cave.go(x, y);
+				event.halt();
+			}
+			else if (event.button == 3) {
+				cave.goStraightAndPushUntil(x, y);
+				event.halt();
+			}
+		},
+
 		_onSteps: function (event) {
 			this._animateSteps(event.steps);
 		},
@@ -171,7 +201,7 @@ YUI.add('ksokoban-view-cave', function (Y) {
 				});
 			}
 			if (steps.length > 0) {
-				Y.later(50, this, this._animateSteps, [steps]);
+				Y.later(25, this, this._animateSteps, [steps]);
 			}
 		}
 

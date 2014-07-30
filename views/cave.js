@@ -158,26 +158,23 @@ YUI.add('ksokoban-view-cave', function (Y) {
 		},
 
 		_onClick: function (event) {
-			event.preventDefault();
-
 			var cave = this.get('model'),
 				cell_size = this.get('cellSize'),
 				region = this.get('caveNode').get('region'),
 				x = Math.floor((event.clientX - region.left) / cell_size),
 				y = Math.floor((event.clientY - region.top) / cell_size);
 
-			if (event.button == 1) {
-				cave.go(x, y);
-				event.halt();
+			switch (event.button) {
+				case 1: cave.go(x, y); break;
+				case 2: cave[event.ctrlKey ? 'redo' : 'undo'](); break;
+				case 3: cave.goStraightAndPushUntil(x, y); break;
 			}
-			else if (event.button == 3) {
-				cave.goStraightAndPushUntil(x, y);
-				event.halt();
-			}
+
+			event.halt();
 		},
 
 		_onSteps: function (event) {
-			this._animateSteps(event.steps);
+			this._animateSteps(event.steps.slice());
 		},
 
 		_animateSteps: function (steps) {

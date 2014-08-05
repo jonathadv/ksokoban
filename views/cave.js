@@ -13,6 +13,7 @@ YUI.add('ksokoban-view-cave', function (Y) {
 		initializer: function () {
 			var cave = this.get('model');
 			cave.after('steps', this._onSteps, this);
+			cave.after('sync', this._onSync, this);
 		},
 
 		render: function () {
@@ -20,11 +21,12 @@ YUI.add('ksokoban-view-cave', function (Y) {
 				map = cave.get('map'),
 				container = this.get('container');
 
-			container.setHTML('<h2 class="game-data">' + this.get('set_name') + ' #' + this.get('level_no') + '</h2><div class="cave"></div>');
+			container.setHTML('<h2 class="game-data">' + cave.get('setName') + ' #' + cave.get('levelNo') + '</h2><div class="cave"></div>');
 			this.set('caveNode', container.one('.cave'));
 
 			this._createWalls(map);
 			this._createItems(map);
+			this._createGems(cave.get('gems'));
 			this._createPlayer(cave);
 
 			this._calcScale();
@@ -37,8 +39,7 @@ YUI.add('ksokoban-view-cave', function (Y) {
 		},
 
 		_createItems: function (map) {
-			var _this = this,
-				gems = [];
+			var _this = this;
 
 			Y.Array.each(map, function (row, y) {
 				Y.Array.each(row, function (cell, x) {
@@ -48,12 +49,8 @@ YUI.add('ksokoban-view-cave', function (Y) {
 					if (cell.goal) {
 						_this._createItem('goal', x, y);
 					}
-					if (cell.gem) {
-						gems.push(_this._createItem('gem', x, y));
-					}
 				});
 			});
-			this.set('gems', gems);
 		},
 
 		_createItem: function (cls, x, y) {
@@ -63,6 +60,17 @@ YUI.add('ksokoban-view-cave', function (Y) {
 			this.get('caveNode').appendChild(node);
 
 			return item;
+		},
+
+		_createGems: function (cave_gems) {
+			var _this = this,
+				gems = [];
+
+			Y.Array.each(cave_gems, function (gem) {
+				gems.push(_this._createItem('gem', gem.x, gem.y));
+			});
+
+			this.set('gems', gems);
 		},
 
 		_createPlayer: function (cave) {
@@ -119,17 +127,38 @@ YUI.add('ksokoban-view-cave', function (Y) {
 				height: height * cell_size
 			});
 
-			Y.Array.each(this.get('items'), function (item) {
-				item.node.setStyles({
-					left:   item.x * cell_size,
-					top:    item.y * cell_size,
-					width:  cell_size,
-					height: cell_size
-				});
-			});
+			Y.Array.each(this.get('items'), Y.bind(this._placeItem, this));
+
 			Y.Array.each(this.get('walls'), function (wall) {
 				wall.set('cellSize', cell_size);
 			});
+		},
+
+		_placeItem: function (item) {
+			var cell_size = this.get('cellSize');
+			item.node.setStyles({
+				left:   item.x * cell_size,
+				top:    item.y * cell_size,
+				width:  cell_size,
+				height: cell_size
+			});
+		},
+
+		_onSync: function () {
+			var attrs = this.getAttrs(['player', 'gems']),
+				cave = this.get('model'),
+				cave_attrs = cave.getAttrs(['player', 'gems']);
+
+			attrs.player.x = cave_attrs.player.x;
+			attrs.player.y = cave_attrs.player.y;
+
+			Y.Array.each(cave_attrs.gems, function (gem, i) {
+				attrs.gems[i].x = gem.x;
+				attrs.gems[i].y = gem.y;
+			});
+
+			this._placeItem(attrs.player);
+			Y.Array.each(attrs.gems, Y.bind(this._placeItem, this));
 		},
 
 		_onKey: function (event) {
@@ -166,7 +195,14 @@ YUI.add('ksokoban-view-cave', function (Y) {
 
 			switch (event.button) {
 				case 1: cave.go(x, y); break;
-				case 2: cave[event.ctrlKey ? 'redo' : 'undo'](); break;
+				case 2:
+					if (event.ctrlKey && event.altKey && event.shiftKey) {
+						cave.reset();
+					}
+					else {
+						cave[event.ctrlKey ? 'redo' : 'undo']();
+					}
+					break;
 				case 3: cave.goStraightAndPushUntil(x, y); break;
 			}
 

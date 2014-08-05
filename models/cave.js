@@ -4,22 +4,23 @@ YUI.add('ksokoban-model-cave', function (Y) {
 	Y.namespace('KSokoban').CaveModel = Y.Base.create('cave', Y.Model, [], {
 
 		initializer: function () {
-			var level_data = this.get('level_data'),
+			var level_data = this.get('levelData'),
 				width_map = Y.Array.map(level_data, function (row_str) { return row_str.length; }),
 				width = Y.Array.reduce(width_map, 0, function (a, v) { return Math.max(a, v); });
 
-			this.set('history', []);
-			this.set('historyPointer', 0);
+			this.set('id', this.get('setName') + '#' + this.get('levelNo'));
 
 			this.set('width', width);
 			this.set('height', level_data.length);
 
 			this._initMap(level_data, width);
-			this._resetReachable();
 
 			this.publish('steps', { emitFacade: true });
+			this.publish('sync', { emitFacade: false });
 
 			this.on('steps', this._resetReachable, this);
+
+			this.load();
 		},
 
 		_initMap: function (level_data, width) {
@@ -37,7 +38,7 @@ YUI.add('ksokoban-model-cave', function (Y) {
 						case '$':
 							cell.gem = cell.floor = true;
 							cell.gem_no = gems.length;
-							gems.push({ cell: cell, x: x, y: y });
+							gems.push({ x: x, y: y });
 							break;
 						case '.':
 							cell.goal = cell.floor = true;
@@ -45,7 +46,7 @@ YUI.add('ksokoban-model-cave', function (Y) {
 						case '*':
 							cell.goal = cell.floor = cell.gem = true;
 							cell.gem_no = gems.length;
-							gems.push({ cell: cell, x: x, y: y });
+							gems.push({ x: x, y: y });
 							break;
 						case '@':
 							cell.floor = true;
@@ -60,9 +61,25 @@ YUI.add('ksokoban-model-cave', function (Y) {
 				}
 				map.push(row);
 			});
-			this.set('map', map);
-			this.set('gems', gems);
-			this.set('player', player);
+			this.set('originalMap', map);
+			this.set('originalGems', gems);
+			this.set('originalPlayer', player);
+			this._reset();
+		},
+
+		reset: function () {
+			this._reset();
+			this.save();
+			this.fire('sync');
+		},
+
+		_reset: function () {
+			this.set('map', Y.clone(this.get('originalMap'), true));
+			this.set('gems', Y.clone(this.get('originalGems'), true));
+			this.set('player', Y.clone(this.get('originalPlayer'), true));
+			this.set('historyPointer', 0);
+			this.set('history', []);
+			this._resetReachable();
 		},
 
 		_resetReachable: function () {
@@ -102,16 +119,11 @@ YUI.add('ksokoban-model-cave', function (Y) {
 			} while (new_reachable.length > 0)
 		},
 
-		_steps: function (steps) {
-			this.fire('steps', { steps: steps });
-			this._pushHistory(steps);
-		},
-
 		_step: function (direction, steps, allow_push) {
 			var map = this.get('map'),
 				player = this.get('player'),
 				dx = 0, dy = 0,
-				step = {},
+				step = {}, gem_no,
 				new_player_x, new_player_y, new_player_cell,
 				new_gem_x, new_gem_y, new_gem_cell;
 
@@ -135,12 +147,13 @@ YUI.add('ksokoban-model-cave', function (Y) {
 				new_gem_y = new_player_y + dy;
 				new_gem_x = new_player_x + dx;
 				new_gem_cell = map[new_gem_y][new_gem_x];
+				gem_no = new_player_cell.gem_no;
 
 				if (new_gem_cell.wall || new_gem_cell.gem) { return false; }
 
-				this._moveGem(new_player_cell.gem_no, new_gem_x, new_gem_y);
+				this._moveGem(gem_no, new_gem_x, new_gem_y);
 
-				step.gem = { x: new_gem_x, y: new_gem_y, no: new_gem_cell.gem_no };
+				step.gem = { x: new_gem_x, y: new_gem_y, no: gem_no };
 			}
 
 			step.player = { x: new_player_x, y: new_player_y };
@@ -176,7 +189,7 @@ YUI.add('ksokoban-model-cave', function (Y) {
 			var steps = [];
 
 			if (this._step(direction, steps, true)) {
-				this._steps(steps);
+				this._steps(direction, 1, steps);
 			}
 		},
 
@@ -186,7 +199,7 @@ YUI.add('ksokoban-model-cave', function (Y) {
 			while (this._step(direction, steps, false));
 
 			if (steps.length > 0) {
-				this._steps(steps);
+				this._steps(direction, steps.length, steps);
 			}
 		},
 
@@ -196,11 +209,11 @@ YUI.add('ksokoban-model-cave', function (Y) {
 			while (this._step(direction, steps, true));
 
 			if (steps.length > 0) {
-				this._steps(steps);
+				this._steps(direction, steps.length, steps);
 			}
 		},
 
-		go: function (x, y) {
+		_go: function (x, y) {
 			var map = this.get('map'),
 				steps = [{ player: { x: x, y: y }}],
 				cell = map[y][x];
@@ -216,7 +229,15 @@ YUI.add('ksokoban-model-cave', function (Y) {
 
 			this.set('player', { x: x, y: y });
 
-			this._steps(steps);
+			return steps;
+		},
+
+		go: function (x, y) {
+			var steps = this._go(x, y);
+
+			if (steps === false) { return false; }
+
+			this._steps(x, y, steps);
 		},
 
 		goStraightAndPushUntil: function (x, y) {
@@ -234,31 +255,53 @@ YUI.add('ksokoban-model-cave', function (Y) {
 
 			while (this._step(direction, steps, true) && -- step_count > 0);
 
-			this._steps(steps);
+			if (steps.length > 0) {
+				this._steps(direction, steps.length, steps);
+			}
 		},
 
-		_pushHistory: function (steps) {
-			var history = this.get('history'),
-				history_pointer = this.get('historyPointer');
+		_steps: function (direction, count, steps) {
+			this.save();
+			this._pushHistory(direction, count, steps);
+			this.fire('steps', { steps: steps });
+		},
 
-			history[history_pointer ++] = steps;
+		_pushHistory: function (direction, count, steps) {
+			var history = this.get('history'),
+				history_pointer = this.get('historyPointer'),
+				turn = { steps: steps };
+
+			if (typeof direction == 'number') {
+				turn.x = direction;
+				turn.y = count;
+			}
+			else {
+				turn.direction = direction;
+				turn.count = count;
+			}
+			history[history_pointer ++] = turn;
 			history.length = history_pointer;
 
 			this.set('historyPointer', history_pointer);
 		},
 
 		undo: function () {
-			var history_pointer = this.get('historyPointer');
+			var attrs = this.getAttrs(['historyPointer', 'history', 'player', 'gems']);
 
-			if (history_pointer == 0) { return false; }
+			if (attrs.historyPointer == 0) { return false; }
 
-			var gems = this.get('gems'),
-				player = this.get('player'),
-				history = this.get('history'),
-				steps = history[-- history_pointer],
+			var steps = attrs.history[-- attrs.historyPointer].steps,
+				back_steps = this._backSteps(steps);
+
+			this.set('historyPointer', attrs.historyPointer);
+
+			this.save();
+			this.fire('steps', { steps: back_steps });
+		},
+
+		_backSteps: function (steps) {
+			var player = this.get('player'),
 				back_steps = [];
-
-			this.set('historyPointer', history_pointer);
 
 			for (var i = steps.length - 1; i >= 0; i --) {
 				var step = steps[i],
@@ -276,7 +319,7 @@ YUI.add('ksokoban-model-cave', function (Y) {
 				back_steps.push(back_step);
 			}
 
-			this.fire('steps', { steps: back_steps });
+			return back_steps;
 		},
 
 		redo: function () {
@@ -286,7 +329,7 @@ YUI.add('ksokoban-model-cave', function (Y) {
 
 			if (history_pointer >= history.length) { return false; }
 
-			var steps = history[history_pointer ++];
+			var steps = history[history_pointer ++].steps;
 
 			Y.Array.each(steps, Y.bind(function (step) {
 				player.x = step.player.x;
@@ -298,7 +341,116 @@ YUI.add('ksokoban-model-cave', function (Y) {
 
 			this.set('historyPointer', history_pointer);
 
+			this.save();
 			this.fire('steps', { steps: steps });
+		},
+
+		toJSON: function () {
+			var attrs = this.getAttrs(['player', 'gems', 'history', 'historyPointer']),
+				json = { historyPointer: attrs.historyPointer, history: [], checksum: this._checksum() };
+
+			Y.Array.each(attrs.history, function (turn) {
+				var save_turn = {};
+
+				Y.Object.each(turn, function (v, k) {
+					if (k != 'steps') {
+						save_turn[k] = v;
+					}
+				});
+
+				json.history.push(save_turn);
+			});
+
+			return json;
+		},
+
+		fromJSON: function (json) {
+			var _this = this,
+				steps, step_count, history;
+
+			this._reset();
+
+			Y.Array.each(json.history, function (turn) {
+				if (turn.direction != null) {
+					steps = [];
+					step_count = turn.count;
+					while (_this._step(turn.direction, steps, true) && -- step_count > 0);
+					_this._pushHistory(turn.direction, turn.count, steps);
+				}
+				else {
+					steps = _this._go(turn.x, turn.y);
+					if (steps !== false) {
+						_this._pushHistory(turn.x, turn.y, steps);
+					}
+				}
+				_this._resetReachable();
+			});
+
+			history = this.get('history');
+
+			if (json.historyPointer < history.length) {
+				for (var i = history.length - 1; i >= 0 && i >= json.historyPointer; i--) {
+					this._backSteps(history[i].steps);
+				}
+			}
+
+			this.set('historyPointer', json.historyPointer);
+
+			if (json.checksum != this._checksum()) {
+				this._reset();
+			}
+		},
+
+		sync: function (action, options, callback) {
+			var data;
+
+			switch (action) {
+				case 'read':
+					data = localStorage.getItem(this.get('id'));
+
+					if (data) {
+						this.fromJSON(Y.JSON.parse(data));
+						callback(null, {});
+					} else {
+						callback('Model not found');
+					}
+
+					return;
+
+				case 'update':
+					data = this.toJSON();
+
+					localStorage.setItem(this.get('id'), Y.JSON.stringify(data));
+
+					callback(null, {});
+
+					return;
+
+				case 'delete':
+					localStorage.removeItem(this.get('id'));
+
+					callback();
+
+					return;
+
+				default:
+					callback('Invalid action');
+			}
+		},
+
+		_checksum: function () {
+			var sum_array = [],
+				attrs = this.getAttrs(['player', 'gems']);
+
+			sum_array.push(attrs.player.x);
+			sum_array.push(attrs.player.y);
+
+			Y.Array.each(attrs.gems, function (gem) {
+				sum_array.push(gem.x);
+				sum_array.push(gem.y);
+			});
+
+			return sum_array.join(',');
 		}
 
 	}, {
@@ -310,5 +462,5 @@ YUI.add('ksokoban-model-cave', function (Y) {
 	});
 
 }, '0.1', {
-	requires: ['model', 'array-extras']
+	requires: ['model', 'array-extras', 'oop']
 });

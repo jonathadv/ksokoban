@@ -112,3 +112,21 @@ h2 {
 .cave .item.wall .stone.halfstone2 { background-image: url(images/halfstone_2.png); }
 .cave .item.wall .stone.halfstone3 { background-image: url(images/halfstone_3.png); }
 .cave .item.wall .stone.halfstone4 { background-image: url(images/halfstone_4.png); }
+
+/* odometer */
+.yui3-odometerwidget {
+    height: 30px;
+}
+.yui3-odometerwidget-header {
+    color: #eee;
+    font-weight: bold;
+    float: left;
+}
+.yui3-odometerwidget-measurement {
+    float: right;
+    color: #777;
+    margin: 0 5px 0 20px;
+}
+.yui3-odometerwidget-value {
+    color: #f00;
+}

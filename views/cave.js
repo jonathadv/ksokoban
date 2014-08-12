@@ -19,9 +19,13 @@ YUI.add('ksokoban-view-cave', function (Y) {
 		render: function () {
 			var cave = this.get('model'),
 				map = cave.get('map'),
-				container = this.get('container');
+				container = this.get('container'),
+				odometer = new Y.KSokoban.OdometerWidget(cave.getAttrs(['setName', 'levelNo', 'stepCount', 'pushCount']));
 
-			container.setHTML('<h2 class="game-data">' + cave.get('setName') + ' #' + cave.get('levelNo') + '</h2><div class="cave"></div>');
+			this.set('odometer', odometer);
+
+			odometer.render(container);
+			container.appendChild('<div class="cave"></div>');
 			this.set('caveNode', container.one('.cave'));
 
 			this._createWalls(map);
@@ -159,6 +163,16 @@ YUI.add('ksokoban-view-cave', function (Y) {
 
 			this._placeItem(attrs.player);
 			Y.Array.each(attrs.gems, Y.bind(this._placeItem, this));
+
+			this._syncOdometer();
+		},
+
+		_syncOdometer: function () {
+			var cave = this.get('model'),
+				odometer = this.get('odometer');
+
+			odometer.setAttrs(cave.getAttrs(['stepCount', 'pushCount']));
+			odometer.syncUI();
 		},
 
 		_onKey: function (event) {
@@ -211,6 +225,7 @@ YUI.add('ksokoban-view-cave', function (Y) {
 
 		_onSteps: function (event) {
 			this._animateSteps(event.steps.slice());
+			this._syncOdometer();
 		},
 
 		_animateSteps: function (steps) {
@@ -250,5 +265,5 @@ YUI.add('ksokoban-view-cave', function (Y) {
 	});
 
 }, '0.1', {
-	requires: ['view', 'node', 'event-resize', 'ksokoban-view-wall']
+	requires: ['view', 'node', 'event-resize', 'ksokoban-view-wall', 'ksokoban-odometer-widget']
 });

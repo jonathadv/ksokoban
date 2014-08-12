@@ -28,44 +28,67 @@ YUI.add('ksokoban-model-cave', function (Y) {
 			var map = [], gems = [], player;
 
 			Y.Array.each(level_data, function (data_row, y) {
-				var row = [], was_wall = false,
+				var row = [],
 					data_cell_arr = Y.Lang.trimRight(data_row).split('');
 				for (var x = 0; x < width; x++) {
 					var cell = {};
 					switch (data_cell_arr[x]) {
 						case '#':
-							cell.wall = was_wall = true;
+							cell.wall = true;
 							break;
 						case '$':
-							cell.gem = cell.floor = true;
+							cell.gem = true;
 							cell.gem_no = gems.length;
 							gems.push({ x: x, y: y });
 							break;
 						case '.':
-							cell.goal = cell.floor = true;
+							cell.goal = true;
 							break;
 						case '*':
-							cell.goal = cell.floor = cell.gem = true;
+							cell.goal = cell.gem = true;
 							cell.gem_no = gems.length;
 							gems.push({ x: x, y: y });
 							break;
 						case '@':
-							cell.floor = true;
 							player = { x: x, y: y };
 							break;
-						case ' ':
-							cell [ was_wall && (0 < y && y < level_data.length - 1) ? 'floor' : 'space' ] = true;
-						default:
-							cell.space = true;
 					}
 					row.push(cell);
 				}
 				map.push(row);
 			});
+			this._initFloor(map, player.x, player.y);
+
 			this.set('originalMap', map);
 			this.set('originalGems', gems);
 			this.set('originalPlayer', player);
 			this._reset();
+		},
+
+		_initFloor: function (map, x, y) {
+			var floor = [], new_floor;
+
+			map[y][x].floor = true;
+			floor.push({x: x, y: y});
+
+			do {
+				new_floor = [];
+
+				Y.Array.each(floor, function (f) {
+					var x = f.x, y = f.y,
+						steps = [{ x: x + 1, y: y }, { x: x - 1, y: y }, { x: x, y: y + 1 }, { x: x, y: y - 1 }];
+
+					Y.Array.each(steps, function (step) {
+						var cell = map[step.y][step.x];
+						if (!(cell.wall || cell.floor)) {
+							cell.floor = true;
+							new_floor.push(step);
+						}
+					});
+				});
+
+				floor = new_floor;
+			} while (new_floor.length > 0)
 		},
 
 		reset: function () {
@@ -107,7 +130,6 @@ YUI.add('ksokoban-model-cave', function (Y) {
 
 				Y.Array.each(reachable, function (r) {
 					var x = r.x, y = r.y,
-						base_cell = map[y][x],
 						steps = [{ x: x + 1, y: y }, { x: x - 1, y: y }, { x: x, y: y + 1 }, { x: x, y: y - 1 }];
 
 					Y.Array.each(steps, function (step) {

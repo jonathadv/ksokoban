@@ -2,6 +2,7 @@ YUI({
 	debug: true,
 	filter: 'raw'
 }).use(
+	'datatype-number-parse',
 	'app',
 	'ksokoban-model-game-data',
 	'ksokoban-view-choose-set',
@@ -41,7 +42,7 @@ YUI({
 					level_set = game_data.getSetByName(req.params.set_name);
 
 				if (level_set != null) {
-					var level = level_set.levels[req.params.level_no];
+					var level = level_set.levels[Y.Number.parse(req.params.level_no) - 1];
 					if (level != null) {
 						var cave_model = new Y.KSokoban.CaveModel({ setName: req.params.set_name, levelNo: req.params.level_no, levelData: level });
 						this.showView('play_game', {

@@ -411,32 +411,37 @@ YUI.add('ksokoban-model-cave', function (Y) {
 
 			this._reset();
 
-			Y.Array.each(json.history, function (turn) {
-				if (turn.direction != null) {
-					steps = [];
-					for (var i = turn.count; i > 0 && _this._step(turn.direction, steps, true); i --);
-					_this._pushHistory(turn.direction, turn.count, steps);
-				}
-				else {
-					steps = _this._go(turn.x, turn.y);
-					if (steps !== false) {
-						_this._pushHistory(turn.x, turn.y, steps);
+			try {
+				Y.Array.each(json.history, function (turn) {
+					if (turn.direction != null) {
+						steps = [];
+						for (var i = turn.count; i > 0 && _this._step(turn.direction, steps, true); i--);
+						_this._pushHistory(turn.direction, turn.count, steps);
+					}
+					else {
+						steps = _this._go(turn.x, turn.y);
+						if (steps !== false) {
+							_this._pushHistory(turn.x, turn.y, steps);
+						}
+					}
+					_this._resetReachable();
+				});
+
+				history = this.get('history');
+
+				if (json.historyPointer < history.length) {
+					for (var i = history.length - 1; i >= 0 && i >= json.historyPointer; i--) {
+						this._backSteps(history[i].steps);
 					}
 				}
-				_this._resetReachable();
-			});
 
-			history = this.get('history');
+				this.set('historyPointer', json.historyPointer);
 
-			if (json.historyPointer < history.length) {
-				for (var i = history.length - 1; i >= 0 && i >= json.historyPointer; i--) {
-					this._backSteps(history[i].steps);
+				if (json.checksum != this._checksum()) {
+					throw 'Checksum doesn\'t match';
 				}
 			}
-
-			this.set('historyPointer', json.historyPointer);
-
-			if (json.checksum != this._checksum()) {
+			catch (e) {
 				this._reset();
 				this.save();
 			}

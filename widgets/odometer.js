@@ -33,7 +33,7 @@ YUI.add('ksokoban-odometer-widget', function (Y) {
 				navigation_node.appendChild('<a class="level next" href="#/' + set_name + '/' + (level_no + 1) + '">&gt;</a>');
 			}
 			else {
-				navigation_node.appendChild('<span class="level next">&lt;</span>');
+				navigation_node.appendChild('<span class="level next">&gt;</span>');
 			}
 			content_box.appendChild(navigation_node);
 		},

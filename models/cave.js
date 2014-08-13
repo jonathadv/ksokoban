@@ -66,29 +66,13 @@ YUI.add('ksokoban-model-cave', function (Y) {
 		},
 
 		_initFloor: function (map, x, y) {
-			var floor = [], new_floor;
-
-			map[y][x].floor = true;
-			floor.push({x: x, y: y});
-
-			do {
-				new_floor = [];
-
-				Y.Array.each(floor, function (f) {
-					var x = f.x, y = f.y,
-						steps = [{ x: x + 1, y: y }, { x: x - 1, y: y }, { x: x, y: y + 1 }, { x: x, y: y - 1 }];
-
-					Y.Array.each(steps, function (step) {
-						var cell = map[step.y][step.x];
-						if (!(cell.wall || cell.floor)) {
-							cell.floor = true;
-							new_floor.push(step);
-						}
-					});
+			this._flood(map, x, y,
+				function (cell) {
+					return !(cell.wall || cell.floor);
+				},
+				function (cell, x, y) {
+					cell.floor = true;
 				});
-
-				floor = new_floor;
-			} while (new_floor.length > 0)
 		},
 
 		reset: function () {
@@ -112,8 +96,7 @@ YUI.add('ksokoban-model-cave', function (Y) {
 
 		_resetReachable: function () {
 			var map = this.get('map'),
-				player = this.get('player'),
-				reachable = [], new_reachable;
+				player = this.get('player');
 
 			Y.Array.each(map, function (row) {
 				Y.Array.each(row, function (cell) {
@@ -122,28 +105,43 @@ YUI.add('ksokoban-model-cave', function (Y) {
 				});
 			});
 
-			map[player.y][player.x].reachable = true;
-			reachable.push(player);
+			this._flood(map, player.x, player.y,
+				function (cell) {
+					return !(cell.wall || cell.gem || cell.reachable);
+				},
+				function (cell, x, y) {
+					cell.reachable = true;
+					if (x != null && y != null) {
+						cell.from = { x: x, y: y };
+					}
+				});
+		},
+
+		_flood: function (map, x, y, condition_callback, action_callback) {
+			var cells = [], new_cells = [],
+				cell = { x: x, y: y };
+
+			action_callback(cell);
+			cells.push(cell);
 
 			do {
-				new_reachable = [];
+				new_cells = [];
 
-				Y.Array.each(reachable, function (r) {
+				Y.Array.each(cells, function (r) {
 					var x = r.x, y = r.y,
 						steps = [{ x: x + 1, y: y }, { x: x - 1, y: y }, { x: x, y: y + 1 }, { x: x, y: y - 1 }];
 
 					Y.Array.each(steps, function (step) {
 						var cell = map[step.y][step.x];
-						if (!(cell.wall || cell.gem || cell.reachable)) {
-							cell.reachable = true;
-							cell.from = { x: x, y: y };
-							new_reachable.push(step);
+						if (condition_callback(cell)) {
+							action_callback(cell, x, y);
+							new_cells.push(step);
 						}
 					});
 				});
 
-				reachable = new_reachable;
-			} while (new_reachable.length > 0)
+				cells = new_cells;
+			} while (new_cells.length > 0)
 		},
 
 		_step: function (direction, steps, allow_push) {

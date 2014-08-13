@@ -42,9 +42,15 @@ YUI({
 					level_set = game_data.getSetByName(req.params.set_name);
 
 				if (level_set != null) {
-					var level = level_set.levels[Y.Number.parse(req.params.level_no) - 1];
+					var level_no = Y.Number.parse(req.params.level_no),
+						level = level_set.levels[level_no - 1];
 					if (level != null) {
-						var cave_model = new Y.KSokoban.CaveModel({ setName: req.params.set_name, levelNo: req.params.level_no, levelData: level });
+						var cave_model = new Y.KSokoban.CaveModel({
+							setName: req.params.set_name,
+							levelNo: level_no,
+							levelData: level,
+							levelCountInSet: level_set.levels.length
+						});
 						this.showView('play_game', {
 							model: cave_model
 						});

@@ -1,6 +1,8 @@
 body {
     background-color: #111;
     font-family: Arial sans-serif;
+    margin: 0;
+    padding: 0;
 }
 
 /* choose level set */
@@ -9,6 +11,7 @@ body {
     margin: 0 auto;
     padding: 0;
     width: 300px;
+    position: relative;
 }
 
 .level-sets .set {
@@ -28,12 +31,47 @@ body {
     background-color: #222;
 }
 
-/* choose level */
-h2 {
-    color: white;
-    text-align: center;
+.level-sets:before, .level-sets:after {
+    position: absolute;
+    display: block;
+    top: 10px;
+    width: 128px;
+    height: 128px;
+    background-image: url(images/hi128-app-ksokoban.png);
+    content: '';
+}
+.level-sets:before {
+    left: -128px;
+}
+.level-sets:after {
+    right: -128px;
 }
 
+/* level title */
+h2.level-title {
+    color: white;
+    text-align: center;
+    width: 600px;
+    margin: 24px auto;
+    position: relative;
+}
+h2.level-title a.up {
+    position: absolute;
+    display: block;
+    top: -10px;
+    width: 48px;
+    height: 48px;
+    background-image: url(images/hi48-app-ksokoban.png);
+    content: '';
+}
+h2.level-title a.up.left {
+    left: 0;
+}
+h2.level-title a.up.right {
+    right: 0;
+}
+
+/* choose level */
 .levels {
     list-style: none;
     margin: 0 auto;
@@ -115,18 +153,41 @@ h2 {
 
 /* odometer */
 .yui3-odometerwidget {
-    height: 30px;
+    height: 76px;
+    overflow: hidden;
 }
-.yui3-odometerwidget-header {
-    color: #eee;
-    font-weight: bold;
-    float: left;
+.yui3-odometerwidget-content {
+    position: relative;
 }
-.yui3-odometerwidget-measurement {
-    float: right;
+
+.yui3-odometerwidget-content nav {
+    position: absolute;
+    left: 15px;
+    top: 4px;
+    height: 20px;
+}
+.yui3-odometerwidget-content nav a {
+    text-decoration: none;
+    color: red;
+    padding: 4px 8px;
+}
+.yui3-odometerwidget-content nav span {
     color: #777;
-    margin: 0 5px 0 20px;
+    padding: 4px 8px;
 }
-.yui3-odometerwidget-value {
-    color: #f00;
+
+.yui3-odometerwidget-content .measurements {
+    position: absolute;
+    right: 15px;
+    top: -6px;
+    height: 40px;
+}
+.yui3-odometerwidget-content .measurement {
+    float: right;
+    clear: right;
+    color: #777;
+    margin: 0 5px 3px 10px;
+}
+.yui3-odometerwidget-content .measurement .value {
+    color: red;
 }

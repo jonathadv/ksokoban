@@ -20,7 +20,7 @@ YUI.add('ksokoban-view-cave', function (Y) {
 			var cave = this.get('model'),
 				map = cave.get('map'),
 				container = this.get('container'),
-				odometer = new Y.KSokoban.OdometerWidget(cave.getAttrs(['setName', 'levelNo', 'stepCount', 'pushCount']));
+				odometer = new Y.KSokoban.OdometerWidget(cave.getAttrs(['setName', 'levelNo', 'stepCount', 'pushCount', 'levelCountInSet']));
 
 			this.set('odometer', odometer);
 
@@ -120,7 +120,7 @@ YUI.add('ksokoban-view-cave', function (Y) {
 				height = cave.get('height'),
 				container = this.get('container'),
 				win_width = container.get('winWidth') - 60,
-				win_height = container.get('winHeight') - 50,
+				win_height = container.get('winHeight') - 86,
 				cell_width = Math.floor(win_width / width / 2) * 2,
 				cell_height = Math.floor(win_height / height / 2) * 2,
 				cell_size = Math.min(cell_width, cell_height, 96);

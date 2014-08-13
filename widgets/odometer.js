@@ -6,39 +6,42 @@ YUI.add('ksokoban-odometer-widget', function (Y) {
 		MEASUREMENT_TEMPLATE: '<div class="{measurementClassName}">{titleText}: <span class="{valueClassName}"></span></div>',
 
 		renderUI: function () {
-			var content_box = this.get('contentBox'),
-				header_html = Y.Lang.sub('<div class="{headerClassName}">{setName} #{levelNo}</div>', {
-					headerClassName: this.getClassName('header'),
-					setName: this.get('setName'),
-					levelNo: this.get('levelNo')
-				}),
+			var set_name = this.get('setName'),
+				level_no = this.get('levelNo'),
+				content_box = this.get('contentBox'),
+				steps_html = '<div class="measurement step">Steps: <span class="value"></span></div>',
+				pushes_html = '<div class="measurement push">Pushes: <span class="value"></span></div>',
+				header_node = Y.Node.create('<h2 class="level-title">' + set_name + ' #' + level_no + '</h2>'),
+				measurements_node = Y.Node.create('<div class="measurements"></div>'),
+				navigation_node = Y.Node.create('<nav>');
 
-				measurement_class_name = this.getClassName('measurement'),
-				value_class_name = this.getClassName('value'),
-				steps_html = Y.Lang.sub(this.MEASUREMENT_TEMPLATE, {
-					measurementClassName: measurement_class_name + ' ' + this.getClassName('step-count'),
-					valueClassName: value_class_name,
-					titleText: 'Steps'
-				}),
-				steps_node = Y.Node.create(steps_html),
-				pushes_html = Y.Lang.sub(this.MEASUREMENT_TEMPLATE, {
-					measurementClassName: measurement_class_name + ' ' + this.getClassName('push-count'),
-					valueClassName: value_class_name,
-					titleText: 'Pushes'
-				}),
-				pushes_node = Y.Node.create(pushes_html);
+			header_node.appendChild('<a class="up left" href="#/' + set_name + '" />');
+			header_node.appendChild('<a class="up right" href="#/' + set_name + '" />');
+			content_box.appendChild(header_node);
 
-			content_box.appendChild(Y.Node.create(header_html));
-			content_box.appendChild(steps_node);
-			content_box.appendChild(pushes_node);
+			measurements_node.appendChild(steps_html);
+			measurements_node.appendChild(pushes_html);
+			content_box.appendChild(measurements_node);
 
-			this.set('stepsValueNode', steps_node.one('.' + value_class_name));
-			this.set('pushesValueNode', pushes_node.one('.' + value_class_name));
+			if (level_no > 1) {
+				navigation_node.appendChild('<a class="level prev" href="#/' + set_name + '/' + (level_no - 1) + '">&lt;</a>');
+			}
+			else {
+				navigation_node.appendChild('<span class="level prev">&lt;</span>');
+			}
+			if (level_no < this.get('levelCountInSet')) {
+				navigation_node.appendChild('<a class="level next" href="#/' + set_name + '/' + (level_no + 1) + '">&gt;</a>');
+			}
+			else {
+				navigation_node.appendChild('<span class="level next">&lt;</span>');
+			}
+			content_box.appendChild(navigation_node);
 		},
 
 		syncUI: function () {
-			this.get('stepsValueNode').setHTML(this.get('stepCount'));
-			this.get('pushesValueNode').setHTML(this.get('pushCount'));
+			var content_box = this.get('contentBox');
+			content_box.one('.measurement.step .value').setHTML(this.get('stepCount'));
+			content_box.one('.measurement.push .value').setHTML(this.get('pushCount'));
 		}
 
 
@@ -46,10 +49,11 @@ YUI.add('ksokoban-odometer-widget', function (Y) {
 		NAME: 'odometer',
 
 		ATTRS: {
-			setName:   { value: undefined },
-			levelNo:   { value: undefined },
-			stepCount: { value: 0 },
-			pushCount: { value: 0 }
+			setName:         { value: undefined },
+			levelNo:         { value: undefined },
+			stepCount:       { value: 0 },
+			pushCount:       { value: 0 },
+			levelCountInSet: { value: 0 }
 		}
 	});
 

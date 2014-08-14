@@ -77,5 +77,7 @@ YUI({
 		var app = new KSokoban();
 
 		app.render().dispatch();
+
+		Y.one('body').addClass('stars');
 	}
 );

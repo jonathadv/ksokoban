@@ -5,6 +5,9 @@ body {
     padding: 0;
 }
 
+.stars {
+    background: url(images/blue-stars.jpg) scroll repeat;
+}
 /* choose level set */
 .level-sets {
     list-style: none;
@@ -19,6 +22,7 @@ body {
 }
 
 .level-sets .set a {
+    font-size: 19px;
     display: inline-block;
     width: 100%;
     color: #ddd;
@@ -28,7 +32,7 @@ body {
 
 .level-sets .set a:hover {
     color: white;
-    background-color: #222;
+    background-color: rgba(200, 220, 255, 0.1);
 }
 
 .level-sets:before, .level-sets:after {
@@ -41,10 +45,10 @@ body {
     content: '';
 }
 .level-sets:before {
-    left: -128px;
+    left: -148px;
 }
 .level-sets:after {
-    right: -128px;
+    right: -148px;
 }
 
 /* level title */
@@ -94,7 +98,7 @@ h2.level-title a.up.right {
 
 .levels .level a:hover {
     color: white;
-    background-color: #222;
+    background-color: rgba(200, 220, 255, 0.1);
 }
 
 /* cave */

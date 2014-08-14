@@ -15,8 +15,8 @@ YUI.add('ksokoban-odometer-widget', function (Y) {
 				measurements_node = Y.Node.create('<div class="measurements"></div>'),
 				navigation_node = Y.Node.create('<nav>');
 
-			header_node.appendChild('<a class="up left" href="#/' + set_name + '" />');
-			header_node.appendChild('<a class="up right" href="#/' + set_name + '" />');
+			header_node.appendChild('<a class="up left" href="#/' + set_name + '" title="Choose level" />');
+			header_node.appendChild('<a class="up right" href="#/' + set_name + '" title="Choose level" />');
 			content_box.appendChild(header_node);
 
 			measurements_node.appendChild(steps_html);
@@ -24,16 +24,16 @@ YUI.add('ksokoban-odometer-widget', function (Y) {
 			content_box.appendChild(measurements_node);
 
 			if (level_no > 1) {
-				navigation_node.appendChild('<a class="level prev" href="#/' + set_name + '/' + (level_no - 1) + '">&lt;</a>');
+				navigation_node.appendChild('<a class="btn left" href="#/' + set_name + '/' + (level_no - 1) + '" title="Previous level"></a>');
 			}
 			else {
-				navigation_node.appendChild('<span class="level prev">&lt;</span>');
+				navigation_node.appendChild('<span class="btn left"></span>');
 			}
 			if (level_no < this.get('levelCountInSet')) {
-				navigation_node.appendChild('<a class="level next" href="#/' + set_name + '/' + (level_no + 1) + '">&gt;</a>');
+				navigation_node.appendChild('<a class="btn right" href="#/' + set_name + '/' + (level_no + 1) + '" title="Next level"></a>');
 			}
 			else {
-				navigation_node.appendChild('<span class="level next">&gt;</span>');
+				navigation_node.appendChild('<span class="btn right"></span>');
 			}
 			content_box.appendChild(navigation_node);
 		},

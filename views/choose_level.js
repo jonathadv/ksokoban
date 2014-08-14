@@ -15,8 +15,8 @@ YUI.add('ksokoban-view-choose-level', function (Y) {
 			container.setHTML('<h2 class="level-title">' + level_set.name + '</h2><ul class="levels">' + level_links.join('') + '</ul>');
 
 			var header = container.one('h2');
-			header.appendChild('<a class="up left" href="#/" />');
-			header.appendChild('<a class="up right" href="#/" />');
+			header.appendChild('<a class="up left" href="#/" title="Choose level set" />');
+			header.appendChild('<a class="up right" href="#/" title="Choose level set" />');
 
 			return this;
 		}

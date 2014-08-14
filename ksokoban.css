@@ -59,6 +59,8 @@ h2.level-title {
     margin: 24px auto;
     position: relative;
 }
+
+/* level title buttons */
 h2.level-title a.up {
     position: absolute;
     display: block;
@@ -167,27 +169,56 @@ h2.level-title a.up.right {
 .yui3-odometerwidget-content nav {
     position: absolute;
     left: 15px;
-    top: 4px;
+    top: -11px;
     height: 20px;
 }
-.yui3-odometerwidget-content nav a {
-    text-decoration: none;
-    color: red;
-    padding: 4px 8px;
+.yui3-odometerwidget-content nav .btn {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 50px;
+    margin-right: 6px;
 }
-.yui3-odometerwidget-content nav span {
-    color: #777;
-    padding: 4px 8px;
-    cursor: default;
+.yui3-odometerwidget-content nav a.btn:hover {
+    background-color: rgba(200, 220, 255, 0.1);
+}
+.yui3-odometerwidget-content nav .btn:before {
+    position: absolute;
+    display: block;
+    top: 13px;
+    width: 0;
+    height: 0;
+    border-top: 12px solid transparent;
+    border-bottom: 12px solid transparent;
+    content: '';
+}
+.yui3-odometerwidget-content nav .btn.left:before {
+    left: 17px;
+}
+.yui3-odometerwidget-content nav a.btn.left:before {
+    border-right: 12px solid rgba(255, 0, 0, 0.7);
+}
+.yui3-odometerwidget-content nav span.btn.left:before {
+    border-right: 12px solid rgba(255, 255, 255, 0.3);
+}
+.yui3-odometerwidget-content nav .btn.right:before {
+    left: 20px;
+}
+.yui3-odometerwidget-content nav a.btn.right:before {
+    border-left: 12px solid rgba(255, 0, 0, 0.7);
+}
+.yui3-odometerwidget-content nav span.btn.right:before {
+    border-left: 12px solid rgba(255, 255, 255, 0.3);
 }
 
 .yui3-odometerwidget-content .measurements {
     position: absolute;
     right: 15px;
-    top: -6px;
+    top: -10px;
     height: 40px;
 }
 .yui3-odometerwidget-content .measurement {
+    font-size: 18px;
     float: right;
     clear: right;
     color: #777;

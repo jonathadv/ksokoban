@@ -157,6 +157,22 @@ h2.level-title a.up.right {
 .cave .item.wall .stone.halfstone3 { background-image: url(images/halfstone_3.png); }
 .cave .item.wall .stone.halfstone4 { background-image: url(images/halfstone_4.png); }
 
+.cave .level-completed {
+    position: absolute;
+    top: 20%;
+    left: 50%;
+    width: 110%;
+    height: 100px;
+    margin-left: -55%;
+    font-size: 36px;
+    line-height: 100px;
+    text-align: center;
+    background-color: black;
+    color: white;
+    z-index: 100;
+    box-shadow: 0 0 15px 1px rgba(255, 255, 255, .2);
+}
+
 /* odometer */
 .yui3-odometerwidget {
     height: 76px;

@@ -54,6 +54,7 @@ YUI({
 						this.showView('play_game', {
 							model: cave_model
 						});
+						cave_model.checkCompletion();
 						return;
 					}
 				}

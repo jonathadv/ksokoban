@@ -18,6 +18,7 @@ YUI.add('ksokoban-model-cave', function (Y) {
 			this.publish('steps', { emitFacade: true });
 			this.publish('sync', { emitFacade: false });
 			this.publish('turn', { emitFacade: true });
+			this.publish('completed', { emitFacade: false });
 
 			this.on('steps', this._resetReachable, this);
 
@@ -92,6 +93,7 @@ YUI.add('ksokoban-model-cave', function (Y) {
 				pushCount: 0
 			});
 			this._resetReachable();
+			this.set('isCompleted', false);
 		},
 
 		_resetReachable: function () {
@@ -215,6 +217,8 @@ YUI.add('ksokoban-model-cave', function (Y) {
 		},
 
 		step: function (direction) {
+			if (this.get('isCompleted')) return;
+
 			var steps = [];
 
 			if (this._step(direction, steps, true)) {
@@ -223,6 +227,8 @@ YUI.add('ksokoban-model-cave', function (Y) {
 		},
 
 		goStraight: function (direction) {
+			if (this.get('isCompleted')) return;
+
 			var steps = [];
 
 			while (this._step(direction, steps, false));
@@ -233,6 +239,8 @@ YUI.add('ksokoban-model-cave', function (Y) {
 		},
 
 		goStraightAndPush: function (direction) {
+			if (this.get('isCompleted')) return;
+
 			var steps = [];
 
 			while (this._step(direction, steps, true));
@@ -265,6 +273,8 @@ YUI.add('ksokoban-model-cave', function (Y) {
 		},
 
 		go: function (x, y) {
+			if (this.get('isCompleted')) return;
+
 			var steps = this._go(x, y);
 
 			if (steps === false) { return false; }
@@ -273,6 +283,8 @@ YUI.add('ksokoban-model-cave', function (Y) {
 		},
 
 		goStraightAndPushUntil: function (x, y) {
+			if (this.get('isCompleted')) return;
+
 			var player = this.get('player'),
 				direction, steps = [], step_count = 0;
 
@@ -296,6 +308,7 @@ YUI.add('ksokoban-model-cave', function (Y) {
 			this._pushHistory(direction, count, steps);
 			this.save();
 			this.fire('steps', { steps: steps });
+			this.checkCompletion();
 		},
 
 		_pushHistory: function (direction, count, steps) {
@@ -317,13 +330,32 @@ YUI.add('ksokoban-model-cave', function (Y) {
 			this.set('historyPointer', history_pointer);
 		},
 
+		checkCompletion: function () {
+			var gems = this.get('gems'),
+				map = this.get('map'),
+				is_not_completed;
+
+			is_not_completed = Y.Array.some(gems, function (gem) {
+				return !map[gem.y][gem.x].goal;
+			});
+
+			if (!is_not_completed) {
+				this.set('isCompleted', true);
+				this.fire('complete');
+			}
+		},
+
 		undo: function () {
+			if (this.get('isCompleted')) return;
+
 			var attrs = this.getAttrs(['historyPointer', 'history', 'player', 'gems']);
 
 			if (attrs.historyPointer == 0) { return false; }
 
 			var steps = attrs.history[-- attrs.historyPointer].steps,
 				back_steps = this._backSteps(steps);
+
+			this.checkCompletion();
 
 			this.set('historyPointer', attrs.historyPointer);
 
@@ -360,6 +392,8 @@ YUI.add('ksokoban-model-cave', function (Y) {
 		},
 
 		redo: function () {
+			if (this.get('isCompleted')) return;
+
 			var history = this.get('history'),
 				history_pointer = this.get('historyPointer'),
 				player = this.get('player'),
@@ -378,6 +412,8 @@ YUI.add('ksokoban-model-cave', function (Y) {
 					counters.pushCount ++;
 				}
 			}, this));
+
+			this.checkCompletion();
 
 			this.set('historyPointer', history_pointer);
 			this.setAttrs(counters);

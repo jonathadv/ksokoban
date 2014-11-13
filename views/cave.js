@@ -14,6 +14,7 @@ YUI.add('ksokoban-view-cave', function (Y) {
 			var cave = this.get('model');
 			cave.after('steps', this._onSteps, this);
 			cave.after('sync', this._onSync, this);
+			cave.after('complete', this._onComplete, this);
 		},
 
 		render: function () {
@@ -165,6 +166,9 @@ YUI.add('ksokoban-view-cave', function (Y) {
 			Y.Array.each(attrs.gems, Y.bind(this._placeItem, this));
 
 			this._syncOdometer();
+
+			var banner = this.get('container').one('.level-completed');
+			banner && banner.remove(true);
 		},
 
 		_syncOdometer: function () {
@@ -251,6 +255,11 @@ YUI.add('ksokoban-view-cave', function (Y) {
 			if (steps.length > 0) {
 				Y.later(25, this, this._animateSteps, [steps]);
 			}
+		},
+
+		_onComplete: function () {
+			var node = Y.Node.create('<div class="level-completed">Level completed!</div>');
+			this.get('caveNode').appendChild(node);
 		}
 
 	}, {

@@ -20,7 +20,7 @@
 
 .yui3-infowidget .buttons {
     position: fixed;
-    top: 76px;
+    top: 96px;
     right: 0;
     bottom: 0;
     width: 120px;
@@ -32,7 +32,7 @@
     text-decoration: none;
     text-align: right;
     color: #777;
-    font-weight: bold;
+    font-weight: 700;
 }
 
 .yui3-infowidget .buttons .button:hover {
@@ -48,8 +48,8 @@
     width: 300px;
     z-index: 10;
     padding: 40px;
-    color: #888;
-    background-color: rgba(0, 0, 0, .9);
+    color: #ccc;
+    background-color: rgba(40, 40, 40, .7);
     transition: right 200ms ease-out;
 }
 
@@ -68,20 +68,12 @@
 .yui3-infowidget .help-panel dl dt {
     margin-top: 9px;
     margin-bottom: 3px;
-    font-weight: bold;
-    color: #777;
+    font-weight: 700;
+    color: #bbb;
 }
 
 .yui3-infowidget .help-panel dl dd {
     margin-left: 20px;
     font-size: 90%;
-    color: #999;
-}
-
-.yui3-infowidget .help-panel {
-
-}
-
-.yui3-infowidget .help-panel {
-
+    color: #ccc;
 }

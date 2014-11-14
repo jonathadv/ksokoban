@@ -24,6 +24,7 @@
     right: 0;
     bottom: 0;
     width: 120px;
+    z-index: 8;
 }
 
 .yui3-infowidget .buttons .button {

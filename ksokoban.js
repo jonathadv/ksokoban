@@ -68,7 +68,8 @@ YUI({
 					value: [
 						{path: '/',                    callbacks: 'handleHome'},
 						{path: '/:set_name',           callbacks: 'handleChooseLevel'},
-						{path: '/:set_name/:level_no', callbacks: 'handlePlayGame'}
+						{path: '/:set_name/:level_no', callbacks: 'handlePlayGame'},
+						{path: '*',                    callbacks: 'handleHome'}
 					]
 				},
 				serverRouting: { value: false }
@@ -78,7 +79,5 @@ YUI({
 		var app = new KSokoban();
 
 		app.render().dispatch();
-
-		Y.one('body').addClass('stars');
 	}
 );

@@ -21,11 +21,13 @@ YUI.add('ksokoban-view-cave', function (Y) {
 			var cave = this.get('model'),
 				map = cave.get('map'),
 				container = this.get('container'),
-				odometer = new Y.KSokoban.OdometerWidget(cave.getAttrs(['setName', 'levelNo', 'stepCount', 'pushCount', 'levelCountInSet']));
+				odometer = new Y.KSokoban.OdometerWidget(cave.getAttrs(['setName', 'levelNo', 'stepCount', 'pushCount', 'levelCountInSet'])),
+				info = new Y.KSokoban.InfoWidget();
 
 			this.set('odometer', odometer);
 
 			odometer.render(container);
+			info.render(container);
 			container.appendChild('<div class="cave"></div>');
 			this.set('caveNode', container.one('.cave'));
 
@@ -274,5 +276,5 @@ YUI.add('ksokoban-view-cave', function (Y) {
 	});
 
 }, '0.1', {
-	requires: ['view', 'node', 'event-resize', 'ksokoban-view-wall', 'ksokoban-odometer-widget']
+	requires: ['view', 'node', 'event-resize', 'ksokoban-view-wall', 'ksokoban-odometer-widget', 'ksokoban-info-widget']
 });

@@ -1,0 +1,87 @@
+.yui3-infowidget {
+
+}
+
+.yui3-infowidget .cover {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 9;
+    transition: background-color 300ms ease-out, bottom 0s linear;
+    background-color: rgba(0, 0, 0, .9);
+}
+
+.yui3-infowidget .cover.cover-hidden {
+    background-color: rgba(0, 0, 0, 0);
+    bottom: 10000px;
+}
+
+.yui3-infowidget .buttons {
+    position: fixed;
+    top: 76px;
+    right: 0;
+    bottom: 0;
+    width: 120px;
+}
+
+.yui3-infowidget .buttons .button {
+    display: block;
+    padding: 10px 20px;
+    text-decoration: none;
+    text-align: right;
+    color: #777;
+    font-weight: bold;
+}
+
+.yui3-infowidget .buttons .button:hover {
+    background-color: rgba(255, 255, 255, .1);
+}
+
+.yui3-infowidget .side-panel {
+    box-sizing: border-box;
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: 300px;
+    z-index: 10;
+    padding: 40px;
+    color: #888;
+    background-color: rgba(0, 0, 0, .9);
+    transition: right 200ms ease-out;
+}
+
+.yui3-infowidget .side-panel.side-panel-hidden {
+    right: -300px;
+}
+
+.yui3-infowidget .side-panel a {
+    color: lightblue;
+}
+
+.yui3-infowidget h2 {
+    margin-top: 0;
+}
+
+.yui3-infowidget .help-panel dl dt {
+    margin-top: 9px;
+    margin-bottom: 3px;
+    font-weight: bold;
+    color: #777;
+}
+
+.yui3-infowidget .help-panel dl dd {
+    margin-left: 20px;
+    font-size: 90%;
+    color: #999;
+}
+
+.yui3-infowidget .help-panel {
+
+}
+
+.yui3-infowidget .help-panel {
+
+}

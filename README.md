@@ -22,7 +22,7 @@ pushing a gem if it is in the way.
 The middle mouse button undoes the last move, 
 and the middle button with the CONTROL key redoes.
 
-Right button together with the SHIFT+CONTROL+ALT keys resets the game.
+Middle button together with the SHIFT+CONTROL+ALT keys resets the game.
 
 
 Authors

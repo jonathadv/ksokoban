@@ -44,19 +44,19 @@ YUI.add('ksokoban-info-widget', function (Y) {
 				cover = bounding_box.one('.cover');
 
 			help_button.on('click', function (e) {
-				e.preventDefault();
+				e.halt();
 				this.get('boundingBox').one('.help-panel').removeClass('side-panel-hidden');
 				this.get('boundingBox').one('.cover').removeClass('cover-hidden');
 			}, this);
 
 			credits_button.on('click', function (e) {
-				e.preventDefault();
+				e.halt();
 				this.get('boundingBox').one('.credits-panel').removeClass('side-panel-hidden');
 				this.get('boundingBox').one('.cover').removeClass('cover-hidden');
 			}, this);
 
 			cover.on('click', function (e) {
-				e.preventDefault();
+				e.halt();
 				this.get('boundingBox').all('.side-panel').addClass('side-panel-hidden');
 				this.get('boundingBox').one('.cover').addClass('cover-hidden');
 			}, this);
